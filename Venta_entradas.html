@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control de Ventas</title>
+</head>
+<body>
+    <!-- Información para la venta de entradas -->
+    <label>Número de Factura:</label><br>
+    <input type="text" id="numero_factura"><br>
+
+    <label>Cédula:</label><br>
+    <input type="text" id="cedula"><br>
+
+    <label>Nombre del Comprador:</label><br>
+    <input type="text" id="nombre_comprador"><br>
+
+    <label>Localidad (1-Sol Norte/Sur, 2-Sombra Este/Oeste, 3-Preferencial):</label><br>
+    <input type="number" id="localidad" min="1" max="3"><br>
+
+    <label>Cantidad de Entradas (máximo 4 por cliente):</label><br>
+    <input type="number" id="cantidad_entradas" min="1" max="4"><br>
+
+    <button onclick="registrarVenta()">Registrar Venta</button><br><br>
+
+    <!-- Mostrar resultados -->
+    <div id="resultados"></div>
+    <div id="estadisticas"></div>
+
+    <script>
+        let ventas = {
+            'Sol Norte/Sur': {cantidad: 0, acumulado: 0},
+            'Sombra Este/Oeste': {cantidad: 0, acumulado: 0},
+            'Preferencial': {cantidad: 0, acumulado: 0}
+        };
+
+        function registrarVenta() {
+            let numeroFactura = document.getElementById('numero_factura').value;
+            let cedula = document.getElementById('cedula').value;
+            let nombreComprador = document.getElementById('nombre_comprador').value;
+            let localidad = document.getElementById('localidad').value;
+            let cantidadEntradas = parseInt(document.getElementById('cantidad_entradas').value);
+
+            // Validar cantidad de entradas
+            if (cantidadEntradas < 1 || cantidadEntradas > 4) {
+                alert("La cantidad de entradas debe estar entre 1 y 4.");
+                return;
+            }
+
+            let precioEntrada, nombreLocalidad;
+            switch (localidad) {
+                case '1':
+                    precioEntrada = 10500;
+                    nombreLocalidad = 'Sol Norte/Sur';
+                    break;
+                case '2':
+                    precioEntrada = 20500;
+                    nombreLocalidad = 'Sombra Este/Oeste';
+                    break;
+                case '3':
+                    precioEntrada = 25500;
+                    nombreLocalidad = 'Preferencial';
+                    break;
+                default:
+                    alert("Localidad no válida.");
+                    return;
+            }
+
+            let subtotal = cantidadEntradas * precioEntrada;
+            let cargosServicios = 1000 * cantidadEntradas;
+            let totalPagar = subtotal + cargosServicios;
+
+            // Actualizar estadísticas
+            ventas[nombreLocalidad].cantidad += cantidadEntradas;
+            ventas[nombreLocalidad].acumulado += subtotal;
+
+            // Mostrar resultados
+            mostrarResultados(numeroFactura, cedula, nombreComprador, nombreLocalidad, cantidadEntradas, subtotal, cargosServicios, totalPagar);
+
+            // Limpiar campos
+            document.getElementById('numero_factura').value = '';
+            document.getElementById('cedula').value = '';
+            document.getElementById('nombre_comprador').value = '';
+            document.getElementById('localidad').value = '';
+            document.getElementById('cantidad_entradas').value = '';
+        }
+
+        function mostrarResultados(numeroFactura, cedula, nombreComprador, localidad, cantidadEntradas, subtotal, cargosServicios, totalPagar) {
+            let resultados = document.getElementById('resultados');
+            resultados.innerHTML += `
+                <p>
+                    <strong>Número de Factura:</strong> ${numeroFactura}<br>
+                    <strong>Cédula:</strong> ${cedula}<br>
+                    <strong>Nombre del Comprador:</strong> ${nombreComprador}<br>
+                    <strong>Localidad:</strong> ${localidad}<br>
+                    <strong>Cantidad de Entradas:</strong> ${cantidadEntradas}<br>
+                    <strong>Subtotal:</strong> ${subtotal} colones<br>
+                    <strong>Cargos por Servicios:</strong> ${cargosServicios} colones<br>
+                    <strong>Total a Pagar:</strong> ${totalPagar} colones<br>
+                </p>
+            `;
+        }
+
+        function mostrarEstadisticas() {
+            let estadisticas = document.getElementById('estadisticas');
+            estadisticas.innerHTML = '<h3>Estadísticas:</h3>';
+            for (let localidad in ventas) {
+                if (ventas.hasOwnProperty(localidad)) {
+                    estadisticas.innerHTML += `
+                        <p>
+                            <strong>Cantidad Entradas ${localidad}:</strong> ${ventas[localidad].cantidad}<br>
+                            <strong>Acumulado Dinero ${localidad}:</strong> ${ventas[localidad].acumulado} colones<br>
+                        </p>
+                    `;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
