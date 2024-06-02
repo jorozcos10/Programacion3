@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculo de Salarios</title>
+</head>
+<body>
+    <!--informacion para solicitar cédula-->
+    <label id="lbl_cedula">Digite la Cédula:</label><br>
+    <input type="text" id="cedula"><br>
+
+    <!--informacion para solicitar nombre-->
+    <label id="lbl_nombre">Digite el Nombre:</label><br>
+    <input type="text" id="nombre"><br>
+
+    <!--informacion para solicitar tipo de empleado-->
+    <label id="lbl_empleado">Digite el tipo de empleado: (1-Operario, 2-Técnico, 3-Profesional)</label><br>
+    <input type="number" min="1" max="3" id="tipo_empleado"><br>
+
+    <!--informacion para solicitar la cantidad de horas-->
+    <label for="horas">Cantidad de horas laboradas:</label><br>
+    <input type="number" id="horas"><br>
+
+    <!--informacion para solicitar precio por hora-->
+    <label id="lbl_precio_hora">Precio por hora:</label><br>
+    <input type="number" id="precio_hora"><br>
+
+    <!--boton para confirmar-->
+    <button id="btn_confirmar" onclick="registrarEmpleado()">Confirmar</button><br>
+    <button id="btn_estadisticas" onclick="mostrarEstadisticas()">Mostrar Estadísticas</button><br>
+
+    <!--area para mostrar resultados-->
+    <div id="resultados"></div>
+    <div id="estadisticas"></div>
+
+    <script>
+    // Creo un array para almacenar la informacion de los empleados
+    let empleados = [];
+
+    // Función para registrar el empleado
+    function registrarEmpleado() {
+        let cedula = document.getElementById('cedula').value;
+        let nombre = document.getElementById('nombre').value;
+        let tipo_empleado = parseInt(document.getElementById('tipo_empleado').value);
+        let horas = parseInt(document.getElementById('horas').value);
+        let precio_hora = parseFloat(document.getElementById('precio_hora').value);
+
+        let salario_ordinario = horas * precio_hora;
+        let aumento = 0;
+
+        // Calculo el aumento de salario por el tipo de empleado
+        switch (tipo_empleado) {
+            case 1:
+                aumento = salario_ordinario * 0.15;
+                break;
+            case 2:
+                aumento = salario_ordinario * 0.10;
+                break;
+            case 3:
+                aumento = salario_ordinario * 0.05;
+                break;
+        }
+
+        // Defino los salarios
+        let salario_bruto = salario_ordinario + aumento;
+        let deduccion_ccss = salario_bruto * 0.0917;
+        let salario_neto = salario_bruto - deduccion_ccss;
+
+        // Guardar la información del empleado
+        let empleado = {
+            cedula: cedula,
+            nombre: nombre,
+            tipo_empleado: tipo_empleado,
+            horas: horas,
+            precio_hora: precio_hora,
+            salario_ordinario: salario_ordinario,
+            aumento: aumento,
+            salario_bruto: salario_bruto,
+            deduccion_ccss: deduccion_ccss,
+            salario_neto: salario_neto
+        };
+
+        empleados.push(empleado);
+
+        // Mostrar los resultados
+        mostrarResultados(empleado);
+
+        // Limpiar los campos de entrada
+        document.getElementById('cedula').value = '';
+        document.getElementById('nombre').value = '';
+        document.getElementById('tipo_empleado').value = '';
+        document.getElementById('horas').value = '';
+        document.getElementById('precio_hora').value = '';
+    }
+
+    // Función para mostrar los resultados de un empleado
+    function mostrarResultados(empleado) {
+        let resultados = document.getElementById('resultados');
+        resultados.innerHTML += `
+            <p>
+                <strong>Cédula:</strong> ${empleado.cedula}<br>
+                <strong>Nombre Empleado:</strong> ${empleado.nombre}<br>
+                <strong>Tipo Empleado:</strong> ${empleado.tipo_empleado}<br>
+                <strong>Salario por Hora:</strong> ${empleado.precio_hora}<br>
+                <strong>Cantidad de Horas:</strong> ${empleado.horas}<br>
+                <strong>Salario Ordinario:</strong> ${empleado.salario_ordinario}<br>
+                <strong>Aumento:</strong> ${empleado.aumento}<br>
+                <strong>Salario Bruto:</strong> ${empleado.salario_bruto}<br>
+                <strong>Deducción CCSS:</strong> ${empleado.deduccion_ccss}<br>
+                <strong>Salario Neto:</strong> ${empleado.salario_neto}<br>
+            </p>
+        `;
+    }
+
+    // Función para mostrar las estadísticas
+    function mostrarEstadisticas() {
+        let totalOperarios = 0, totalTecnicos = 0, totalProfesionales = 0;
+        let netoOperarios = 0, netoTecnicos = 0, netoProfesionales = 0;
+
+        for (let i = 0; i < empleados.length; i++) {
+            let empleado = empleados[i];
+            switch (empleado.tipo_empleado) {
+                case 1:
+                    totalOperarios++;
+                    netoOperarios += empleado.salario_neto;
+                    break;
+                case 2:
+                    totalTecnicos++;
+                    netoTecnicos += empleado.salario_neto;
+                    break;
+                case 3:
+                    totalProfesionales++;
+                    netoProfesionales += empleado.salario_neto;
+                    break;
+            }
+        }
+
+        let promedioOperarios = 0;
+        if (totalOperarios > 0) {
+            promedioOperarios = netoOperarios / totalOperarios;
+        }
+
+        let promedioTecnicos = 0;
+        if (totalTecnicos > 0) {
+            promedioTecnicos = netoTecnicos / totalTecnicos;
+        }
+
+        let promedioProfesionales = 0;
+        if (totalProfesionales > 0) {
+            promedioProfesionales = netoProfesionales / totalProfesionales;
+        }
+
+        let estadisticas = document.getElementById('estadisticas');
+        estadisticas.innerHTML = `
+            <h3>Estadísticas:</h3>
+            <p>
+                <strong>Cantidad Empleados Tipo Operarios:</strong> ${totalOperarios}<br>
+                <strong>Acumulado Salario Neto para Operarios:</strong> ${netoOperarios}<br>
+                <strong>Promedio Salario Neto para Operarios:</strong> ${promedioOperarios}<br><br>
+                <strong>Cantidad Empleados Tipo Técnico:</strong> ${totalTecnicos}<br>
+                <strong>Acumulado Salario Neto para Técnicos:</strong> ${netoTecnicos}<br>
+                <strong>Promedio Salario Neto para Técnicos:</strong> ${promedioTecnicos}<br><br>
+                <strong>Cantidad Empleados Tipo Profesional:</strong> ${totalProfesionales}<br>
+                <strong>Acumulado Salario Neto para Profesionales:</strong> ${netoProfesionales}<br>
+                <strong>Promedio Salario Neto para Profesionales:</strong> ${promedioProfesionales}<br>
+            </p>
+        `;
+    }
+    </script>
+
+</body>
+</html>
